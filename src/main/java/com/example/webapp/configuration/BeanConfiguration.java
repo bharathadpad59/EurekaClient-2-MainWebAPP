@@ -3,6 +3,7 @@ package com.example.webapp.configuration;
 import java.util.Locale;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import com.google.gson.GsonBuilder;
 
 @Configuration
+@RefreshScope
 public class BeanConfiguration {
 
 	
@@ -27,7 +29,7 @@ public class BeanConfiguration {
 	@Bean
 	GsonBuilder gsonBuilder(){
 	    GsonBuilder gsonBuilder=new GsonBuilder();
-//	    gsonBuilder.serializeNulls();
+	    gsonBuilder.serializeNulls();
 	    return gsonBuilder;
 	}
 	

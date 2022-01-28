@@ -10,7 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -39,6 +42,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.example.webapp.exception.RestException;
 import com.example.webapp.pojo.TestPojo;
 import com.example.webapp.repository.RolesRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -49,6 +55,7 @@ import com.google.gson.GsonBuilder;
 @EnableScheduling
 @EnableEurekaClient
 public class WebAppByBharatApplication implements ApplicationRunner {
+	Logger log = LoggerFactory.getLogger(WebAppByBharatApplication.class);
 
 	@Autowired
 	GsonBuilder gsonBuilder;
@@ -80,15 +87,38 @@ public class WebAppByBharatApplication implements ApplicationRunner {
 	}
 
 	@GetMapping(value = "/gsonTest")
-	public TestPojo gsonTest() {
+	public TestPojo gsonTest() throws JsonMappingException, JsonProcessingException {
 
 		TestPojo pojo = new TestPojo();
 		pojo.setName("bharat");
 		pojo.setRollNo(null);
+		log.info("pojo-====="+pojo);
+
+
+		
+		//Gson way to convert Java Object to JSON
 		String gsonwithoutNull = new Gson().toJson(pojo);
+		
+		//Jackson way to convert Java Object to JSON
+		ObjectMapper mapper=new ObjectMapper();
+		String jsonString = mapper.writeValueAsString(pojo);
+		
+		//Gson way to convert JSON to Java Object
+		TestPojo gsonJsonMapper=new Gson().fromJson(gsonwithoutNull, TestPojo.class);
+		
+		//Jackson ObjectMapper  way to convert JSON to Java Object
+		ObjectMapper mapper1=new ObjectMapper();
+		TestPojo jacksonJsonMapper=mapper1.readValue(gsonwithoutNull, TestPojo.class); 
+		
+
+		
+		
+		//*********************************************************************************
+		
 		System.out.println("gsonwithoutNull======" + gsonwithoutNull);
 		String gsonwithNull = gsonBuilder.create().toJson(pojo);
 		System.out.println("gsonwithNull===" + gsonwithNull);
+		
 		return pojo;
 	}
 
@@ -157,6 +187,9 @@ public class WebAppByBharatApplication implements ApplicationRunner {
 			return messageSource.getMessage("welcome.text", null, null);
 		}
 		
+		
+//		@Value("${microservice.EurekaClient-1.endpoints.endpoint.uri}")
+//		String eurekaClientAPI;
 		
 		@GetMapping("/getWebclientResponse")
 		public String webClient() {
